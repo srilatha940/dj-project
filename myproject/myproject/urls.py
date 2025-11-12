@@ -19,6 +19,7 @@ from django.urls import path
 from basic.views import sample,sample1,sampleInfo,dynamicResponse,add,sub
 from basic.views import mul
 from basic.views import div,health,addStudent
+from basic.views import addPost
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('greet/',sample),
@@ -30,5 +31,6 @@ urlpatterns = [
     path('multiplication/',mul),
     path('division/',div),
     path('health/',health),
-    path('add/',addStudent)
+    path('add/',addStudent),
+    path('insta/',addPost)
 ]

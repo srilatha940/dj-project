@@ -5,6 +5,7 @@ from django.db import connection
 import json
 from django.views.decorators.csrf import csrf_exempt
 from basic.models import Student
+from basic.models import InstaPost
 # Create your views here.
 def sample(request):
     return HttpResponse("hello world")
@@ -81,3 +82,17 @@ def addStudent(request):
             )
         return JsonResponse({"status":"success","id":student.id},status=200)
     return JsonResponse({'error':'Use post method'},status=400)
+
+@csrf_exempt
+def addPost(request):
+    print(request.method)
+    if request.method=='POST':
+        data=json.loads(request.body)
+        post=InstaPost.objects.create(
+            post_name=data.get('post_name'),
+            post_type=data.get('post_type'),
+            post_date=data.get('post_date'),
+            post_description=data.get('post_description')
+        )
+        return JsonResponse({"status":"success","id":post.id,"message":"Post created Successfully!"},status=200)
+    return JsonResponse({'error':"use post method"},status=200)
