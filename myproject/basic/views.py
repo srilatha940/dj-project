@@ -4,8 +4,8 @@ from django.http import JsonResponse
 from django.db import connection
 import json
 from django.views.decorators.csrf import csrf_exempt
-from basic.models import Student
-from basic.models import InstaPost
+from basic.models import StudentNew
+# from basic.models import InstaPost
 # Create your views here.
 def sample(request):
     return HttpResponse("hello world")
@@ -75,24 +75,55 @@ def addStudent(request):
     print(request.method)
     if request.method=='POST':
         data=json.loads(request.body)
-        student=Student.objects.create(
+        student=StudentNew.objects.create(
             name=data.get('name'),
             age= data.get('age'),
             email=data.get('email')
             )
         return JsonResponse({"status":"success","id":student.id},status=200)
-    return JsonResponse({'error':'Use post method'},status=400)
+    elif request.method=="GET":
+        result=list(StudentNew.objects.values())
+        print(result)
+        return JsonResponse({"status":"ok","data":result},status=200)
 
-@csrf_exempt
-def addPost(request):
-    print(request.method)
-    if request.method=='POST':
+    elif request.method=="PUT":
         data=json.loads(request.body)
-        post=InstaPost.objects.create(
-            post_name=data.get('post_name'),
-            post_type=data.get('post_type'),
-            post_date=data.get('post_date'),
-            post_description=data.get('post_description')
-        )
-        return JsonResponse({"status":"success","id":post.id,"message":"Post created Successfully!"},status=200)
-    return JsonResponse({'error':"use post method"},status=200)
+        ref_id=data.get("id")       #getting_id
+        new_email=data.get('email')     #getting_email
+        existing_student=StudentNew.objects.get(id=ref_id)      #fetched the object as per the id
+        # print(existing_student)
+        existing_student.email=new_email    #updating with new email
+        existing_student.save()
+        updated_data=StudentNew.objects.filter(id=ref_id).values().first()
+
+        return JsonResponse({"status":"data updated successfully","updated_data":updated_data},status=200)
+        
+    elif request.method=="DELETE":
+        data=json.loads(request.body)
+        ref_id=data.get("id")   #getting id
+        get_deleting_data=StudentNew.objects.filter(id=ref_id).values().first()
+        to_be_delete=StudentNew.objects.get(id=ref_id)
+        to_be_delete.delete()
+
+        return JsonResponse({"status":"success","message":"student record deleted successfully","deleted data": get_deleting_data},status=200)
+    return JsonResponse({'error':'Use post method'},status=400)
+    
+# @csrf_exempt
+# def addPost(request):
+#     print(request.method)
+#     if request.method=='POST':
+#         data=json.loads(request.body)
+#         post=InstaPost.objects.create(
+#             post_name=data.get('post_name'),
+#             post_type=data.get('post_type'),
+#             post_date=data.get('post_date'),
+#             post_description=data.get('post_description')
+#         )
+#         return JsonResponse({"status":"success","id":post.id,"message":"Post created Successfully!"},status=200)
+#     elif request.method=="GET":
+#         return JsonResponse({"req":"get method requested"},status=200)
+#     elif request.method=="PUT":
+#         return JsonResponse({"req":"put method requested"},status=200)
+#     elif request.method=="DELETE":
+#         return JsonResponse({"req":"delete method requested"},status=200)
+#     return JsonResponse({'error':"use post method"},status=200)
